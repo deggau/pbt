@@ -1,0 +1,41 @@
+# Task 05 - Home Inicial
+
+## Objective
+Create the initial home page with authentication and navigation structure.
+
+## Requirements
+- Login page for new users
+- After login, show sidebar menu with groups user participates in
+- If no groups exist, show highlighted "create group" button
+- If groups exist, show group menu + "create new group" option
+- Selecting a group shows: "view game history" and "add new game" options
+
+## Game Registration (Focus of this task)
+
+### New Game Form
+- Quick registration for past matches
+- Date suggestion: next week on same day/time as last game
+- Player assignment to teams (drag & drop from available players list)
+- Team creation/ad-hoc teams support
+
+## Technical Details
+- HTML pages with sidebar navigation
+- Link to existing styles.css
+- Responsive design (mobile-friendly)
+- Interactive elements for drag-and-drop player assignment
+
+## UI Flow
+1. Login screen
+2. Sidebar menu showing groups
+3. Group selection screen with options
+4. "Add new game" form with:
+   - Date/time (pre-filled from last game pattern)
+   - Opponent field
+   - Location
+   - Team assignment area (drag players to teams)
+
+## Notes
+- Focus on quick game registration workflow
+- Drag-and-drop for player-to-team assignment
+- Auto-suggest next game date based on pattern
+- Keep it simple and focused on the main workflow
