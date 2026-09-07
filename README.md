@@ -23,6 +23,10 @@ To add this to your system PATH for command-line access, run:
 
 Or manually add `%LocalAppData%\Atlassian\SourceTree\git_local\bin` to your user PATH environment variable.
 
+## Task Management
+
+After completing a task, move the task file from `tasks/` to `tasks/completed/` folder with a descriptive commit message.
+
 ## API Endpoints
 
 - `GET /` - Health check
