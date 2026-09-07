@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PBT - Registro de Jogos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>PBT - Registro de Jogos</h1>
+    </header>
+    
+    <main>
+        <section class="form-section">
+            <h2>Cadastrar Novo Jogo</h2>
+            <form id="gameForm">
+                <div class="form-group">
+                    <label for="opponent">Oponente:</label>
+                    <input type="text" id="opponent" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Data:</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="location">Local:</label>
+                    <input type="text" id="location" required>
+                </div>
+                <div class="form-group">
+                    <label for="score">Placar:</label>
+                    <input type="text" id="score" placeholder="ex: 3x1">
+                </div>
+                <button type="submit">Salvar Jogo</button>
+            </form>
+        </section>
+        
+        <section class="games-list">
+            <h2>Jogos Cadastrados</h2>
+            <div id="gamesContainer"></div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>PBT - Registro de Jogos de Futebol</p>
+    </footer>
+    
+    <script src="app.js"></script>
+</body>
+</html>
