@@ -24,7 +24,14 @@ app.get('/', (req, res) => {
 
 app.get('/api/games', async (req, res) => {
     try {
-        const { data, error } = await supabase.from('games').select('*').order('date', { ascending: false });
+        const { data, error } = await supabase
+            .from('games')
+            .select(`
+                *,
+                groups:group_id (id, name),
+                created_by_users:name
+            `)
+            .order('date', { ascending: false });
         
         if (error) throw error;
         res.json({ success: true, data });
@@ -34,13 +41,47 @@ app.get('/api/games', async (req, res) => {
     }
 });
 
-app.post('/api/games', async (req, res) => {
+app.get('/api/games/:id', async (req, res) => {
     try {
-        const { opponent, date, location, score } = req.body;
+        const { id } = req.params;
         
         const { data, error } = await supabase
             .from('games')
-            .insert([{ opponent, date, location, score }])
+            .select(`
+                *,
+                groups:group_id (id, name),
+                created_by_users:name
+            `)
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        
+        const { data: players, error: playersError } = await supabase
+            .from('game_players')
+            .select(`
+                *,
+                players:name,
+                players:player_id (name)
+            `)
+            .eq('game_id', id);
+        
+        if (playersError) throw playersError;
+        
+        res.json({ success: true, data, players });
+    } catch (error) {
+        console.error('Error fetching game details:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/games', async (req, res) => {
+    try {
+        const { group_id, created_by, opponent, date, location, score } = req.body;
+        
+        const { data, error } = await supabase
+            .from('games')
+            .insert([{ group_id, created_by, opponent, date, location, score }])
             .select();
         
         if (error) throw error;
@@ -80,6 +121,58 @@ app.delete('/api/games/:id', async (req, res) => {
         res.json({ success: true, message: 'Game deleted' });
     } catch (error) {
         console.error('Error deleting game:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/game_players', async (req, res) => {
+    try {
+        const { game_id, player_id, invited_player_name } = req.body;
+        
+        const { data, error } = await supabase
+            .from('game_players')
+            .insert([{ game_id, player_id, invited_player_name }])
+            .select();
+        
+        if (error) throw error;
+        res.status(201).json({ success: true, data: data[0] });
+    } catch (error) {
+        console.error('Error adding player to game:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/games/:id/players', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { data, error } = await supabase
+            .from('game_players')
+            .select(`
+                *,
+                players:name,
+                players:player_id (name)
+            `)
+            .eq('game_id', id);
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching game players:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.delete('/api/game_players/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { error } = await supabase.from('game_players').delete().eq('id', id);
+        
+        if (error) throw error;
+        res.json({ success: true, message: 'Player removed from game' });
+    } catch (error) {
+        console.error('Error removing player from game:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

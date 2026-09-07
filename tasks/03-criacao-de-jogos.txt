@@ -1,0 +1,85 @@
+# Task 03 - Criação de Jogos
+
+## Objective
+Create tables for games and game_players with relationships to groups and users, including support for invited players without accounts.
+
+## Database Schema
+
+### games table
+- id (primary key)
+- group_id (foreign key to groups)
+- created_by (foreign key to users)
+- opponent
+- date
+- location
+- score
+- created_at
+- updated_at
+
+### game_players table
+- id (primary key)
+- game_id (foreign key to games)
+- player_id (foreign key to players, nullable)
+- invited_player_name (nullable, for players without accounts)
+- goals (default 0)
+- created_at
+
+### groups table (if not exists)
+- id (primary key)
+- name
+- description
+- created_at
+
+### players table (if not exists)
+- id (primary key)
+- name
+- email
+- phone
+- created_at
+
+### users table (if not exists)
+- id (primary key)
+- name
+- email
+- password_hash
+- created_at
+
+## API Endpoints
+
+### POST /api/games
+- Create new game
+- Required: group_id, created_by, opponent, date, location, score
+
+### GET /api/games
+- List all games with related data
+
+### GET /api/games/:id
+- Get game details with players
+
+### PUT /api/games/:id
+- Update game information
+
+### DELETE /api/games/:id
+- Delete a game
+
+### POST /api/game_players
+- Add player to game (either player_id or invited_player_name required)
+
+### GET /api/games/:id/players
+- List players for a specific game
+
+### DELETE /api/game_players/:id
+- Remove player from game
+
+## Steps
+1. Review and update database schema
+2. Create SQL migration for tables
+3. Test table creation
+4. Implement API endpoints
+5. Test API functionality
+
+## Notes
+- Keep database credentials secure (use environment variables)
+- Document the connection setup process
+- Use foreign key constraints for data integrity
+- Support both registered players and invited guests
