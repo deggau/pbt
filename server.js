@@ -177,6 +177,143 @@ app.delete('/api/game_players/:id', async (req, res) => {
     }
 });
 
+app.post('/api/teams', async (req, res) => {
+    try {
+        const { game_id, name, color } = req.body;
+        
+        const { data, error } = await supabase
+            .from('teams')
+            .insert([{ game_id, name, color }])
+            .select();
+        
+        if (error) throw error;
+        
+        await supabase
+            .from('games')
+            .update({ teams_count: supabase.raw('teams_count + 1') })
+            .eq('id', game_id);
+        
+        res.status(201).json({ success: true, data: data[0] });
+    } catch (error) {
+        console.error('Error creating team:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/games/:id/teams', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { data, error } = await supabase
+            .from('teams')
+            .select('*')
+            .eq('game_id', id)
+            .order('created_at');
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching teams:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.put('/api/teams/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        
+        const { data, error } = await supabase
+            .from('teams')
+            .update(updates)
+            .eq('id', id)
+            .select();
+        
+        if (error) throw error;
+        res.json({ success: true, data: data[0] });
+    } catch (error) {
+        console.error('Error updating team:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.delete('/api/teams/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { error } = await supabase.from('teams').delete().eq('id', id);
+        
+        if (error) throw error;
+        
+        const { data, error: teamError } = await supabase
+            .from('teams')
+            .select('game_id')
+            .eq('id', id)
+            .single();
+        
+        if (!teamError && data) {
+            await supabase
+                .from('games')
+                .update({ teams_count: supabase.raw('teams_count - 1') })
+                .eq('id', data.game_id);
+        }
+        
+        res.json({ success: true, message: 'Team deleted' });
+    } catch (error) {
+        console.error('Error deleting team:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/game_players/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { data, error } = await supabase
+            .from('game_players')
+            .select(`
+                *,
+                players:name,
+                players:player_id (name),
+                teams:name,
+                teams:team_id (name, color)
+            `)
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching game player:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.put('/api/game_players/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updates = req.body;
+        
+        const { data, error } = await supabase
+            .from('game_players')
+            .update(updates)
+            .eq('id', id)
+            .select(`
+                *,
+                players:name,
+                players:player_id (name),
+                teams:name,
+                teams:team_id (name, color)
+            `);
+        
+        if (error) throw error;
+        res.json({ success: true, data: data[0] });
+    } catch (error) {
+        console.error('Error updating game player:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

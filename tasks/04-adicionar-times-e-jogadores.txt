@@ -1,0 +1,57 @@
+# Task 04 - Adicionar Times e Jogadores
+
+## Objective
+Add information about teams in games, including team names, colors, and player-team assignments.
+
+## Database Schema Changes
+
+### games table (update)
+- Add `teams_count` column (INTEGER, minimum 2)
+
+### new table: teams
+- id (primary key)
+- game_id (foreign key to games)
+- name (team name)
+- color (team color for uniforms)
+- created_at
+
+### game_players table (update)
+- Add `team_id` (foreign key to teams, nullable)
+
+### relationships
+- One game can have multiple teams
+- One player belongs to one team per game
+- teams_count must be >= 2
+
+## API Endpoints
+
+### POST /api/teams
+- Create new team for a game
+- Required: game_id, name, color
+
+### GET /api/games/:id/teams
+- List all teams for a specific game
+
+### PUT /api/teams/:id
+- Update team information
+
+### DELETE /api/teams/:id
+- Delete a team (and update teams_count)
+
+### GET /api/game_players/:id
+- Get player details with team information
+
+### PUT /api/game_players/:id
+- Update player team assignment
+
+## Steps
+1. Update database schema with new tables/columns
+2. Create SQL migration
+3. Test table creation and constraints
+4. Implement API endpoints
+5. Test API functionality
+
+## Notes
+- Ensure teams_count is always >= 2
+- Team colors help with uniform management
+- Players can be assigned to teams per game
