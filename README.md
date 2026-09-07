@@ -7,6 +7,22 @@
 3. Run `npm install`
 4. Start the server with `npm start`
 
+## Git Setup
+
+Git is configured in the project to use the SourceTree Git installation:
+
+```
+%LocalAppData%\Atlassian\SourceTree\git_local\bin\git.exe
+```
+
+To add this to your system PATH for command-line access, run:
+
+```
+[Environment]::SetEnvironmentVariable("Path", "$env:Path;%LocalAppData%\Atlassian\SourceTree\git_local\bin", "User")
+```
+
+Or manually add `%LocalAppData%\Atlassian\SourceTree\git_local\bin` to your user PATH environment variable.
+
 ## API Endpoints
 
 - `GET /` - Health check
