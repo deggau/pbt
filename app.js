@@ -3,11 +3,12 @@ class GameRegistry {
         this.games = JSON.parse(localStorage.getItem('pbtGames')) || [];
         this.form = document.getElementById('gameForm');
         this.gamesContainer = document.getElementById('gamesContainer');
-        this.init();
     }
 
     init() {
-        this.form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        if (this.form) {
+            this.form.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        }
         this.renderGames();
     }
 

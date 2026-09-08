@@ -6,45 +6,48 @@
     <title>PBT - Registro de Jogos</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <header>
-        <h1>PBT - Registro de Jogos</h1>
-    </header>
-    
-    <main>
-        <section class="form-section">
-            <h2>Cadastrar Novo Jogo</h2>
-            <form id="gameForm">
+<body class="auth-mode">
+    <div id="authContainer">
+        <div class="login-card">
+            <h1>PBT - Registro de Jogos</h1>
+            <div class="login-form">
                 <div class="form-group">
-                    <label for="opponent">Oponente:</label>
-                    <input type="text" id="opponent" required>
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" placeholder="seu@email.com" required>
                 </div>
                 <div class="form-group">
-                    <label for="date">Data:</label>
-                    <input type="date" id="date" required>
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
                 </div>
-                <div class="form-group">
-                    <label for="location">Local:</label>
-                    <input type="text" id="location" required>
-                </div>
-                <div class="form-group">
-                    <label for="score">Placar:</label>
-                    <input type="text" id="score" placeholder="ex: 3x1">
-                </div>
-                <button type="submit">Salvar Jogo</button>
-            </form>
-        </section>
-        
-        <section class="games-list">
-            <h2>Jogos Cadastrados</h2>
-            <div id="gamesContainer"></div>
-        </section>
-    </main>
-    
-    <footer>
-        <p>PBT - Registro de Jogos de Futebol</p>
-    </footer>
-    
+                <button type="button" id="loginBtn" onclick="handleLogin()">Entrar</button>
+                <p class="signup-link">Não tem conta? <a href="#">Cadastre-se</a></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="appContainer" class="hidden">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Meus Grupos</h2>
+                <button class="create-group-btn" onclick="showCreateGroupModal()">+</button>
+            </div>
+            <div id="groupsList" class="groups-scroll-area">
+                <!-- Groups will be rendered here -->
+            </div>
+        </div>
+        <div class="main-content">
+            <header>
+                <h1 id="pageTitle">PBT - Registro de Jogos</h1>
+            </header>
+            
+            <main id="mainContent">
+                <!-- Dynamic content will be loaded here -->
+            </main>
+        </div>
+    </div>
+
+    <script src="example-data.js"></script>
+    <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
