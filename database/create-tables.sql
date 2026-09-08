@@ -14,7 +14,7 @@ CREATE TABLE groups (
     name VARCHAR(255) NOT NULL,
     create_at TIMESTAMPTZ DEFAULT NOW(),
     update_at TIMESTAMPTZ DEFAULT NOW(),
-    player_id UUID REFERENCES players(id) NOT NULL
+    user_id UUID REFERENCES users(id)
 );
 
 -- Create group_players table

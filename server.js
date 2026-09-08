@@ -22,6 +22,34 @@ app.get('/', (req, res) => {
     });
 });
 
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        const { data, error } = await supabase
+            .from('users')
+            .select('id, name, email')
+            .eq('email', email)
+            .eq('password_hash', password)
+            .single();
+        
+        if (error || !data) {
+            return res.status(401).json({ 
+                success: false, 
+                error: 'Credenciais inválidas' 
+            });
+        }
+        
+        res.json({ 
+            success: true, 
+            user: { id: data.id, name: data.name, email: data.email }
+        });
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 app.get('/api/games', async (req, res) => {
     try {
         const { data, error } = await supabase
@@ -285,6 +313,214 @@ app.get('/api/game_players/:id', async (req, res) => {
         res.json({ success: true, data });
     } catch (error) {
         console.error('Error fetching game player:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/players', async (req, res) => {
+    try {
+        const { name, email, phone } = req.body;
+        
+        const { data, error } = await supabase
+            .from('players')
+            .insert([{ name, email, phone }])
+            .select();
+        
+        if (error) throw error;
+        res.status(201).json({ success: true, data: data[0] });
+    } catch (error) {
+        console.error('Error creating player:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/players/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { data, error } = await supabase
+            .from('players')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching player:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/players', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('players')
+            .select('*')
+            .order('name');
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching players:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/groups', async (req, res) => {
+    try {
+        const { name, user_id } = req.body;
+        
+        const { data, error } = await supabase
+            .from('groups')
+            .insert([{ name, user_id }])
+            .select();
+        
+        if (error) throw error;
+        res.status(201).json({ success: true, data: data[0] });
+    } catch (error) {
+        console.error('Error creating group:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/groups', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('groups')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching groups:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/groups/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { data, error } = await supabase
+            .from('groups')
+            .select(`
+                *,
+                group_players:group_players(group_id,
+                    players:player_id(name, email, phone)
+                )
+            `)
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching group:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/groups/:id/add-player', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { player_id } = req.body;
+        
+        const { data, error } = await supabase
+            .from('group_players')
+            .insert([{ group_id: id, player_id }])
+            .select(`
+                *,
+                players:name,
+                players:player_id (name, email, phone)
+            `);
+        
+        if (error) throw error;
+        res.status(201).json({ success: true, data: data[0] });
+    } catch (error) {
+        console.error('Error adding player to group:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.delete('/api/groups/:id/remove-player/:playerId', async (req, res) => {
+    try {
+        const { id, playerId } = req.params;
+        
+        const { error } = await supabase
+            .from('group_players')
+            .delete()
+            .eq('group_id', id)
+            .eq('player_id', playerId);
+        
+        if (error) throw error;
+        res.json({ success: true, message: 'Player removed from group' });
+    } catch (error) {
+        console.error('Error removing player from group:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/groups/:id/share', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const shareUrl = `${process.env.FRONTEND_URL || 'http://localhost:5500'}/join-group?id=${id}`;
+        
+        res.json({ success: true, shareUrl });
+    } catch (error) {
+        console.error('Error generating share URL:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.post('/api/players', async (req, res) => {
+    try {
+        const { name, email, phone } = req.body;
+        
+        const { data, error } = await supabase
+            .from('players')
+            .insert([{ name, email, phone }])
+            .select();
+        
+        if (error) throw error;
+        res.status(201).json({ success: true, data: data[0] });
+    } catch (error) {
+        console.error('Error creating player:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/players/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const { data, error } = await supabase
+            .from('players')
+            .select('*')
+            .eq('id', id)
+            .single();
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching player:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+app.get('/api/players', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('players')
+            .select('*')
+            .order('name');
+        
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching players:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

@@ -30,10 +30,15 @@ After completing a task, move the task file from `tasks/` to `tasks/completed/` 
 ## API Endpoints
 
 - `GET /` - Health check
-- `GET /api/games` - Get all games
-- `POST /api/games` - Create a new game
-- `PUT /api/games/:id` - Update a game
-- `DELETE /api/games/:id` - Delete a game
+- `GET /api/groups` - Get all groups
+- `POST /api/groups` - Create a new group
+- `GET /api/groups/:id` - Get group details with players
+- `POST /api/groups/:id/add-player` - Add player to group
+- `DELETE /api/groups/:id/remove-player/:playerId` - Remove player from group
+- `POST /api/groups/:id/share` - Get shareable link for group
+- `POST /api/players` - Create a new player
+- `GET /api/players/:id` - Get player details
+- `GET /api/players` - Get all players
 
 ## Database Tables
 

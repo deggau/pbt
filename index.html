@@ -49,6 +49,84 @@
         </div>
     </div>
 
+    <!-- Modal para criar grupo -->
+    <div id="createGroupModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Grupo</h2>
+                <button class="close-btn" onclick="closeCreateGroupModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="groupForm">
+                    <div class="form-group">
+                        <label for="groupName">Nome do Grupo:</label>
+                        <input type="text" id="groupName" placeholder="Ex: PBT Futebol Amigo" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeCreateGroupModal()">Cancelar</button>
+                        <button type="submit" class="btn-primary">Criar Grupo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div id="modalOverlay" class="overlay hidden"></div>
+
+    <!-- Modal para gerenciar grupo -->
+    <div id="manageGroupModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="manageGroupTitle">Gerenciar Grupo</h2>
+                <button class="close-btn" onclick="closeManageGroupModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="groupInfo">
+                    <p><strong>ID do Grupo:</strong> <span id="groupIdDisplay"></span></p>
+                    <p><strong>Nome:</strong> <span id="groupNameDisplay"></span></p>
+                </div>
+                <div class="group-actions">
+                    <button class="btn-primary" onclick="showAddPlayerModal()">+ Adicionar Jogador</button>
+                    <button class="btn-secondary" onclick="shareGroupLink()">🔗 Compartilhar Link</button>
+                </div>
+                <div id="groupPlayers" class="players-list">
+                    <!-- Players will be rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar jogador -->
+    <div id="addPlayerModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Adicionar Jogador</h2>
+                <button class="close-btn" onclick="closeAddPlayerModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addPlayerForm">
+                    <div class="form-group">
+                        <label for="playerName">Nome do Jogador:</label>
+                        <input type="text" id="playerName" placeholder="Nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="playerEmail">E-mail:</label>
+                        <input type="email" id="playerEmail" placeholder="email@exemplo.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="playerPhone">Telefone:</label>
+                        <input type="tel" id="playerPhone" placeholder="(00) 00000-0000" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeAddPlayerModal()">Cancelar</button>
+                        <button type="submit" class="btn-primary">Adicionar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script src="example-data.js"></script>
     <script src="auth.js"></script>
     <script src="app.js"></script>
