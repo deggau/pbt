@@ -30,13 +30,29 @@ const exampleData = {
             id: 'group-001',
             name: 'PBT Futebol Amigo',
             players: ['player-001', 'player-002', 'player-003', 'player-004', 'player-005'],
-            admin: 'player-001'
+            admin: 'player-001',
+            user_id: 'user-001'
         },
         {
             id: 'group-002',
             name: 'Quinta do PBT',
             players: ['player-001', 'player-006', 'player-007', 'player-008'],
-            admin: 'player-006'
+            admin: 'player-001',
+            user_id: 'user-001'
+        },
+        {
+            id: 'group-003',
+            name: 'Sábado Esportivo',
+            players: ['player-001', 'player-009', 'player-010'],
+            admin: 'player-001',
+            user_id: 'user-001'
+        },
+        {
+            id: 'group-004',
+            name: 'Amigos da Esquina',
+            players: ['player-002', 'player-003', 'player-004'],
+            admin: 'player-002',
+            user_id: 'user-002'
         }
     ],
     games: [

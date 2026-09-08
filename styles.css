@@ -140,23 +140,38 @@ body.auth-mode #appContainer {
 }
 
 .create-group-btn {
-    background: white;
-    color: #2E7D32;
+    background: #4CAF50;
+    color: white;
     border: none;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    font-size: 1.5rem;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
+    gap: 8px;
     transition: background 0.3s, transform 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .create-group-btn:hover {
-    background: #f0f0f0;
-    transform: scale(1.1);
+    background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.create-group-btn:active {
+    transform: translateY(0);
+}
+
+.btn-icon {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.btn-text {
+    font-weight: 500;
+    font-size: 0.9rem;
 }
 
 .groups-scroll-area {
@@ -524,6 +539,12 @@ footer {
     .create-group-btn {
         width: 40px;
         height: 40px;
+        padding: 0;
+        justify-content: center;
+    }
+    
+    .btn-text {
+        display: none;
     }
     
     .main-content {
