@@ -46,6 +46,11 @@ class GameRegistry {
             this.form.addEventListener('submit', (e) => this.handleFormSubmit(e));
         }
         
+        const gameForm = document.getElementById('gameForm');
+        if (gameForm) {
+            gameForm.addEventListener('submit', (e) => this.handleCreateGame(e));
+        }
+        
         this.setupEventListeners();
         this.fetchGroups();
     }
@@ -185,6 +190,39 @@ class GameRegistry {
         }
     }
 
+    showCreateGameModal() {
+        this.currentGameId = null;
+        document.getElementById('gameForm').reset();
+        document.getElementById('gameOpponent').focus();
+        document.getElementById('createGameModal').classList.remove('hidden');
+        document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+
+    closeCreateGameModal() {
+        document.getElementById('createGameModal').classList.add('hidden');
+        document.getElementById('modalOverlay').classList.add('hidden');
+    }
+
+    showAssignTeamsModal(gameId) {
+        this.currentGameId = gameId;
+        this.gameTeams = [];
+        this.gamePlayers = [];
+        
+        document.getElementById('assignTeamsTitle').innerText = `Definir Times - Jogo ${gameId}`;
+        document.getElementById('leftTeamPlayers').innerHTML = '<p class="empty-text">Arraste jogadores aqui</p>';
+        document.getElementById('rightTeamPlayers').innerHTML = '<p class="empty-text">Arraste jogadores aqui</p>';
+        
+        this.fetchGameTeams(gameId);
+        
+        document.getElementById('assignTeamsModal').classList.remove('hidden');
+        document.getElementById('modalOverlay').classList.remove('hidden');
+    }
+
+    closeAssignTeamsModal() {
+        document.getElementById('assignTeamsModal').classList.add('hidden');
+        document.getElementById('modalOverlay').classList.add('hidden');
+    }
+
     closeManageGroupModal() {
         document.getElementById('manageGroupModal').classList.add('hidden');
         document.getElementById('modalOverlay').classList.add('hidden');
@@ -229,6 +267,54 @@ class GameRegistry {
     closeAddPlayerModal() {
         document.getElementById('addPlayerModal').classList.add('hidden');
         document.getElementById('modalOverlay').classList.add('hidden');
+    }
+
+    async handleCreateGame(e) {
+        e.preventDefault();
+        
+        if (!this.currentGroupId) {
+            alert('Erro: Nenhum grupo selecionado.');
+            return;
+        }
+
+        const opponent = document.getElementById('gameOpponent').value.trim();
+        const date = document.getElementById('gameDate').value;
+        const location = document.getElementById('gameLocation').value.trim();
+        const teamsCount = parseInt(document.getElementById('gameTeamsCount').value);
+
+        if (!opponent || !date || !location || !teamsCount) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${this.API_URL}/api/games`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    group_id: this.currentGroupId,
+                    created_by: this.getCurrentUser(),
+                    opponent,
+                    date,
+                    location,
+                    score: null,
+                    teams_count: teamsCount
+                })
+            });
+
+            const gameData = await response.json();
+
+            if (gameData.success) {
+                this.closeCreateGameModal();
+                alert('Jogo criado com sucesso!');
+                this.showAssignTeamsModal(gameData.data.id);
+            } else {
+                alert(`Erro: ${gameData.error}`);
+            }
+        } catch (error) {
+            console.error('Error creating game:', error);
+            alert('Erro ao criar jogo. Verifique sua conexão.');
+        }
     }
 
     async handleAddPlayer(e) {
@@ -301,6 +387,101 @@ class GameRegistry {
         } catch (error) {
             console.error('Error sharing group link:', error);
             alert('Erro ao gerar link de convite.');
+        }
+    }
+
+    async fetchGameTeams(gameId) {
+        try {
+            const response = await fetch(`${this.API_URL}/api/games/${gameId}/teams`);
+            const data = await response.json();
+
+            if (data.success) {
+                this.gameTeams = data.data;
+                
+                const teamsCount = this.gameTeams.length;
+                let teamHTML = '';
+                
+                for (let i = 0; i < teamsCount; i++) {
+                    const team = this.gameTeams[i];
+                    const teamIdElement = i === 0 ? 'leftTeamId' : 'rightTeamId';
+                    const playersContainer = i === 0 ? 'leftTeamPlayers' : 'rightTeamPlayers';
+                    
+                    document.getElementById(teamIdElement).value = team.id;
+                    document.getElementById(`${i === 0 ? 'left' : 'right'}TeamName`).innerText = team.name || `Time ${i + 1}`;
+                    
+                    const teamPlayers = this.gamePlayers.filter(gp => gp.team_id === team.id);
+                    
+                    document.getElementById(playersContainer).innerHTML = teamPlayers.map(player => this.getPlayerItemHTML(player)).join('');
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching game teams:', error);
+        }
+    }
+
+    getPlayerItemHTML(player) {
+        return `
+            <div class="player-item" draggable="true" 
+                 data-player-id="${player.player_id || 'guest'}"
+                 data-player-name="${player.invited_player_name || player.players?.name}">
+                <span class="player-name">${player.invited_player_name || player.players?.name}</span>
+                <button class="remove-player-btn" onclick="window.removePlayerFromGame('${player.id}')">×</button>
+            </div>
+        `;
+    }
+
+    async confirmTeamAssignment() {
+        const leftTeamId = document.getElementById('leftTeamId').value;
+        const rightTeamId = document.getElementById('rightTeamId').value;
+        
+        if (!this.currentGameId || (!leftTeamId && !rightTeamId)) {
+            alert('Erro: Configure os times antes de salvar.');
+            return;
+        }
+
+        try {
+            for (let i = 0; i < this.gamePlayers.length; i++) {
+                const player = this.gamePlayers[i];
+                const playerIndex = i + 1;
+                const isLeftTeam = playerIndex <= Math.floor(this.gamePlayers.length / 2);
+                const teamId = isLeftTeam ? leftTeamId : rightTeamId;
+                
+                if (teamId) {
+                    await fetch(`${this.API_URL}/api/game_players/${player.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ team_id: teamId })
+                    });
+                }
+            }
+            
+            this.closeAssignTeamsModal();
+            alert('Times atribuídos com sucesso!');
+        } catch (error) {
+            console.error('Error saving team assignment:', error);
+            alert('Erro ao salvar times.');
+        }
+    }
+
+    async removePlayerFromGame(playerId) {
+        try {
+            const response = await fetch(`${this.API_URL}/api/game_players/${playerId}`, {
+                method: 'DELETE'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                if (this.currentGameId) {
+                    this.fetchGameTeams(this.currentGameId);
+                }
+                alert('Jogador removido com sucesso!');
+            } else {
+                alert(`Erro: ${data.error}`);
+            }
+        } catch (error) {
+            console.error('Error removing player from game:', error);
+            alert('Erro ao remover jogador.');
         }
     }
 
@@ -378,16 +559,39 @@ function closeAddPlayerModal() {
     }
 }
 
-function handleAddPlayer(e) {
-    e.preventDefault();
+function closeCreateGameModal() {
+    if (window.gameRegistry) {
+        window.gameRegistry.closeCreateGameModal();
+    }
+}
+
+function closeAssignTeamsModal() {
+    if (window.gameRegistry) {
+        window.gameRegistry.closeAssignTeamsModal();
+    }
+}
+
+function showCreateGameModal() {
     if (window.gameRegistry && window.gameRegistry.currentGroupId) {
-        window.gameRegistry.handleAddPlayer(e);
+        window.gameRegistry.showCreateGameModal();
+    }
+}
+
+function confirmTeamAssignment() {
+    if (window.gameRegistry && window.gameRegistry.currentGameId) {
+        window.gameRegistry.confirmTeamAssignment();
     }
 }
 
 function shareGroupLink() {
     if (window.gameRegistry && window.gameRegistry.currentGroupId) {
         window.gameRegistry.shareGroupLink();
+    }
+}
+
+function removePlayerFromGroup(groupId, playerId) {
+    if (window.gameRegistry) {
+        window.gameRegistry.removePlayerFromGroup(groupId, playerId);
     }
 }
 
@@ -398,28 +602,17 @@ window.showManageGroupModal = showManageGroupModal;
 window.closeManageGroupModal = closeManageGroupModal;
 window.showAddPlayerModal = showAddPlayerModal;
 window.closeAddPlayerModal = closeAddPlayerModal;
+window.closeCreateGameModal = closeCreateGameModal;
+window.closeAssignTeamsModal = closeAssignTeamsModal;
+window.showCreateGameModal = showCreateGameModal;
+window.confirmTeamAssignment = confirmTeamAssignment;
 window.shareGroupLink = shareGroupLink;
-window.handleAddPlayer = handleAddPlayer;
-
-window.gameRegistry = new GameRegistry();
-
-function removePlayerFromGroup(groupId, playerId) {
-    if (window.gameRegistry) {
-        window.gameRegistry.removePlayerFromGroup(groupId, playerId);
-    }
-}
-
 window.removePlayerFromGroup = removePlayerFromGroup;
 
-function handleAddPlayer(e) {
-    e.preventDefault();
-    if (window.gameRegistry && window.gameRegistry.currentGroupId) {
-        window.gameRegistry.handleAddPlayer(e);
+function removePlayerFromGame(playerId) {
+    if (window.gameRegistry) {
+        window.gameRegistry.removePlayerFromGame(playerId);
     }
 }
 
-function shareGroupLink() {
-    if (window.gameRegistry && window.gameRegistry.currentGroupId) {
-        window.gameRegistry.shareGroupLink();
-    }
-}
+window.removePlayerFromGame = removePlayerFromGame;
