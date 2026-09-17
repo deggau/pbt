@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -10,194 +10,40 @@
     <div id="authContainer">
         <div class="login-card">
             <h1>PBT - Registro de Jogos</h1>
-            <div class="login-form">
-                <div class="form-group">
-                    <label for="email">E-mail:</label>
-                    <input type="email" id="email" placeholder="seu@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Senha:</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
-                </div>
-                <button type="button" id="loginBtn" onclick="handleLogin()">Entrar</button>
-                <p class="signup-link">Não tem conta? <a href="#">Cadastre-se</a></p>
-            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group"><label for="email">E-mail</label><input type="email" id="email" autocomplete="username" required></div>
+                <div class="form-group"><label for="password">Senha</label><input type="password" id="password" autocomplete="current-password" required></div>
+                <button type="submit" id="loginBtn">Entrar</button>
+                <p id="loginStatus" role="status" aria-live="polite"></p>
+            </form>
         </div>
     </div>
-
     <div id="appContainer" class="hidden">
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>Meus Grupos</h2>
-                <button class="create-group-btn" id="createGroupBtn" onclick="showCreateGroupModal()">
-                    <span class="btn-icon">+</span>
-                    <span class="btn-text">Novo Grupo</span>
-                </button>
-            </div>
-            <div id="groupsList" class="groups-scroll-area">
-                <!-- Groups will be rendered here -->
-            </div>
-        </div>
+        <aside class="sidebar">
+            <div class="sidebar-header"><h2>Minhas patotas</h2></div>
+            <nav id="groupsList" class="groups-scroll-area" aria-label="Patotas"></nav>
+            <details class="account-actions"><summary>Conta e opções</summary>
+                <button id="createGroupBtn" class="create-group-btn">+ Nova patota</button>
+                <button id="exportLocalBtn" class="btn-secondary">Exportar dados locais antigos</button>
+                <button id="logoutBtn" class="btn-secondary">Sair</button>
+            </details>
+        </aside>
         <div class="main-content">
-            <header>
-                <h1 id="pageTitle">PBT - Registro de Jogos</h1>
-            </header>
-            
-            <main id="mainContent">
-                <!-- Dynamic content will be loaded here -->
-            </main>
+            <header><button id="menuToggle" class="menu-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button><h1 id="pageTitle">Próxima partida</h1></header>
+            <p id="appStatus" role="status" aria-live="polite"></p>
+            <button id="retryBtn" type="button" hidden>Tentar novamente</button>
+            <main id="mainContent"></main>
+            <button id="confirmFab" class="confirm-fab" aria-label="Confirmar presença" hidden>👍</button>
         </div>
     </div>
-
-    <!-- Modal para criar grupo -->
-    <div id="createGroupModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Novo Grupo</h2>
-                <button class="close-btn" onclick="closeCreateGroupModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="groupForm">
-                    <div class="form-group">
-                        <label for="groupName">Nome do Grupo:</label>
-                        <input type="text" id="groupName" placeholder="Ex: PBT Futebol Amigo" required>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-secondary" onclick="closeCreateGroupModal()">Cancelar</button>
-                        <button type="submit" class="btn-primary">Criar Grupo</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Overlay -->
-    <div id="modalOverlay" class="overlay hidden"></div>
-
-    <!-- Modal para gerenciar grupo -->
-    <div id="manageGroupModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="manageGroupTitle">Gerenciar Grupo</h2>
-                <button class="close-btn" onclick="closeManageGroupModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="groupInfo">
-                    <p><strong>ID do Grupo:</strong> <span id="groupIdDisplay"></span></p>
-                    <p><strong>Nome:</strong> <span id="groupNameDisplay"></span></p>
-                </div>
-                <div class="group-actions">
-                    <button class="btn-primary" onclick="showAddPlayerModal()">+ Adicionar Jogador</button>
-                    <button class="btn-secondary" onclick="shareGroupLink()">🔗 Compartilhar Link</button>
-                    <button class="btn-secondary" onclick="showCreateGameModal()">📅 Criar Jogo</button>
-                </div>
-                <div id="groupPlayers" class="players-list">
-                    <h4>Jogadores</h4>
-                    <!-- Players will be rendered here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para criar jogo -->
-    <div id="createGameModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Criar Novo Jogo</h2>
-                <button class="close-btn" onclick="closeCreateGameModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="gameForm">
-                    <div class="form-group">
-                        <label for="gameOpponent">Adversário:</label>
-                        <input type="text" id="gameOpponent" placeholder="Ex: Vasco da Gama" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="gameDate">Data:</label>
-                        <input type="date" id="gameDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="gameLocation">Local:</label>
-                        <input type="text" id="gameLocation" placeholder="Ex: Maracanã" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="gameTeamsCount">Número de Times:</label>
-                        <input type="number" id="gameTeamsCount" min="2" max="10" value="2" required>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-secondary" onclick="closeCreateGameModal()">Cancelar</button>
-                        <button type="submit" class="btn-primary">Criar Jogo</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para definir times e jogadores -->
-    <div id="assignTeamsModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="assignTeamsTitle">Definir Times e Jogadores</h2>
-                <button class="close-btn" onclick="closeAssignTeamsModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div id="gameTeamAssignment">
-                    <div class="team-container">
-                        <div class="team-column">
-                            <h4 id="leftTeamName">Time 1</h4>
-                            <div id="leftTeamPlayers" class="team-players-list">
-                                <p class="empty-text">Arraste jogadores aqui</p>
-                            </div>
-                            <input type="hidden" id="leftTeamId">
-                        </div>
-                        <div class="team-column">
-                            <h4 id="rightTeamName">Time 2</h4>
-                            <div id="rightTeamPlayers" class="team-players-list">
-                                <p class="empty-text">Arraste jogadores aqui</p>
-                            </div>
-                            <input type="hidden" id="rightTeamId">
-                        </div>
-                    </div>
-                    <div class="game-actions" id="gameTeamAssignmentActions">
-                        <button class="btn-primary" onclick="confirmTeamAssignment()">Salvar Times</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para adicionar jogador -->
-    <div id="addPlayerModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Adicionar Jogador</h2>
-                <button class="close-btn" onclick="closeAddPlayerModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="addPlayerForm">
-                    <div class="form-group">
-                        <label for="playerName">Nome do Jogador:</label>
-                        <input type="text" id="playerName" placeholder="Nome completo" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="playerEmail">E-mail:</label>
-                        <input type="email" id="playerEmail" placeholder="email@exemplo.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="playerPhone">Telefone:</label>
-                        <input type="tel" id="playerPhone" placeholder="(00) 00000-0000" required>
-                    </div>
-                    <div class="modal-actions">
-                        <button type="button" class="btn-secondary" onclick="closeAddPlayerModal()">Cancelar</button>
-                        <button type="submit" class="btn-primary">Adicionar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script src="example-data.js"></script>
-    <script src="auth.js"></script>
-    <script src="app.js"></script>
+    <dialog id="editorDialog" aria-labelledby="editorTitle">
+        <div class="modal-header"><h2 id="editorTitle"></h2><button id="closeEditor" class="close-btn" aria-label="Fechar">×</button></div>
+        <form id="editorForm" class="modal-body">
+            <div id="editorBody"></div>
+            <p id="editorStatus" role="status" aria-live="polite"></p>
+            <div class="modal-actions"><button type="submit" id="saveEditor">Salvar</button></div>
+        </form>
+    </dialog>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>

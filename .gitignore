@@ -1,3 +1,9 @@
 node_modules/
 .env
 *.log
+test-results/
+playwright-report/
+inventory.local.json
+backup/
+*.dump
+*.dump.gpg

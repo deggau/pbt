@@ -823,3 +823,63 @@ footer {
         font-size: 1.5rem;
     }
 }
+
+.menu-toggle{display:none;width:44px;padding:8px;margin-right:10px}.confirm-fab{position:fixed;right:24px;bottom:24px;width:64px;height:64px;min-height:64px;border-radius:50%;font-size:1.8rem;box-shadow:0 4px 12px #0005;z-index:20}.confirm-options{display:flex;gap:12px;justify-content:center}.confirm-options button{width:64px;min-height:64px;border-radius:50%;font-size:1.8rem}.confirm-options .confirm-yes{background:#2e7d32}.confirm-options .confirm-no{background:#c62828}.attendance-list{margin:10px 0 20px;padding-left:0;list-style:none}.attendance-list li{padding:8px 10px;border-bottom:1px solid #ddd}.attendance-list h3{margin-top:14px;color:#2e7d32}.admin-options{float:right;width:44px;min-height:44px;padding:8px}.draw-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}.draw-team{min-height:140px;border:2px dashed #aaa;padding:10px;border-radius:8px}.draw-player{padding:8px;margin:5px 0;background:#eef6ee;border-radius:5px;cursor:grab}
+@media(max-width:768px){.menu-toggle{display:inline-block;background:#2e7d32;vertical-align:middle}.confirm-fab{right:18px;bottom:18px}header h1{display:inline}}
+
+/* Task 06: controles acessíveis por toque e teclado. */
+button, input, select { min-height: 44px; }
+.login-form button, .btn-primary, .create-group-btn, button { background-color: #2e7d32; }
+button:disabled { opacity: .6; cursor: wait; }
+:focus-visible { outline: 3px solid #ffb300; outline-offset: 3px; }
+select { width: 100%; padding: 10px; font: inherit; border: 1px solid #aaa; border-radius: 5px; background: white; }
+input[type="checkbox"] { width: 24px; min-height: 24px; vertical-align: middle; }
+.sidebar h2 { color: white; }
+.sidebar button { margin-bottom: 12px; }
+.account-actions summary { cursor: pointer; min-height: 44px; padding: 10px 0; }
+.groups-scroll-area { margin-top: 16px; }
+.group-item { width: 100%; text-align: left; overflow-wrap: anywhere; }
+.action-row, .quick-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.action-row button, .quick-nav button { width: auto; flex: 1 1 130px; }
+.quick-nav a { background: white; color: #205724; border-radius: 5px; padding: 12px 20px; }
+.season-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.season-bar label { width: 100%; }
+.season-bar select { flex: 1 1 170px; width: auto; }
+.season-bar button { width: auto; }
+.ranking { padding-left: 24px; margin: 12px 0 24px; }
+.ranking li { padding: 8px 0; }
+.ranking strong { display: block; }
+#appStatus:not(:empty) { padding: 12px; background: #fff3e0; border-radius: 6px; margin-bottom: 12px; }
+#loginStatus, #editorStatus { color: #8b2600; margin-top: 12px; overflow-wrap: anywhere; }
+dialog { border: 0; border-radius: 12px; margin: auto; width: min(640px, calc(100% - 24px)); max-height: calc(100dvh - 24px); }
+dialog::backdrop { background: rgb(0 0 0 / .6); }
+dialog .modal-header { position: sticky; top: 0; background: white; z-index: 1; gap: 12px; }
+dialog .modal-header h2 { margin: 0; font-size: 1.3rem; }
+.close-btn { min-width: 44px; min-height: 44px; }
+.result-player { margin: 18px 0; padding: 12px; border: 1px solid #b6c9b7; border-radius: 8px; min-width: 0; }
+.result-player legend { font-weight: 700; padding: 0 6px; overflow-wrap: anywhere; }
+.result-player label { display: block; }
+.result-player input { width: 100%; font: inherit; padding: 8px; border: 1px solid #aaa; border-radius: 5px; }
+.result-numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.goal-balls { display: flex; flex-wrap: wrap; gap: 4px; margin: 12px 0; }
+.goal-balls button { flex: 1; min-width: 40px; width: auto; padding: 6px; background: #e8f5e9; color: #173e19; border: 2px solid transparent; }
+.goal-balls button[aria-pressed="true"] { border-color: #1b5e20; background: #b9e3bb; }
+.detail-player { border-bottom: 1px solid #ddd; padding: 14px 0; }
+.detail-player label { display: block; margin-top: 8px; }
+.guest-controls { border-top: 1px solid #ccc; padding-top: 16px; }
+@media (max-width: 768px) {
+    #appContainer:not(.hidden) { flex-direction: column; }
+    .sidebar { position: static; width: 100%; height: auto; padding: 16px; }
+    .sidebar-header h2, .group-name, .groups-scroll-area { display: block; }
+    .sidebar-header { margin-bottom: 8px; }
+    .groups-scroll-area { display: flex; gap: 8px; overflow-x: auto; }
+    .group-item { min-width: 140px; width: auto; flex-shrink: 0; }
+    .create-group-btn { width: auto; height: auto; padding: 10px; }
+    .main-content { margin-left: 0; padding: 16px; min-width: 0; }
+    body:not(.menu-open) .sidebar { display: none; }
+    body.menu-open .sidebar { display: block; }
+    .screen-section { padding: 16px; }
+    .login-card { padding: 24px; }
+    header { margin-bottom: 16px; }
+    .modal-body { padding: 14px; }
+}

@@ -1,3 +1,12 @@
+-- Esquema inicial para banco VAZIO. Nunca reaplicar em produção existente.
+CREATE TABLE users (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Create players table
 CREATE TABLE players (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -27,18 +36,9 @@ CREATE TABLE group_players (
 );
 
 -- Create indexes
-CREATE INDEX idx_groups_player_id ON groups(player_id);
+CREATE INDEX idx_groups_user_id ON groups(user_id);
 CREATE INDEX idx_group_players_group_id ON group_players(group_id);
 CREATE INDEX idx_group_players_player_id ON group_players(player_id);
-
--- Create users table
-CREATE TABLE users (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
 
 -- Create games table
 CREATE TABLE games (

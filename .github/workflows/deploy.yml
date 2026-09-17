@@ -1,0 +1,77 @@
+name: Produção (Supabase + Render)
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pbt-production
+  cancel-in-progress: false
+jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main' && vars.PRODUCTION_DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    services:
+      restore:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: restore-only
+          POSTGRES_DB: pbt_restore
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - name: Validar configuração
+        env:
+          SCHEMA_REVIEWED: ${{ vars.SCHEMA_REVIEWED }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          test "$SCHEMA_REVIEWED" = 'true'
+          test -n "$DATABASE_URL"
+          test -n "$BACKUP_PASSPHRASE"
+          test -n "$RENDER_DEPLOY_HOOK"
+      - name: Backup do esquema público da aplicação e restauração de verificação
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          mkdir -p backup
+          docker run --rm -e PGDATABASE="$DATABASE_URL" postgres:17 pg_dump --schema=public --format=custom --no-owner --no-acl > backup/public.dump
+          test -s backup/public.dump
+          docker run --rm --network host -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=restore-only postgres:17 psql -d pbt_restore -v ON_ERROR_STOP=1 -c 'DROP SCHEMA public CASCADE; CREATE ROLE anon; CREATE ROLE authenticated;'
+          docker run --rm --network host -i -e PGHOST=127.0.0.1 -e PGUSER=postgres -e PGPASSWORD=restore-only postgres:17 pg_restore --exit-on-error --no-owner --no-acl --dbname=pbt_restore < backup/public.dump
+          gpg --batch --yes --pinentry-mode loopback --passphrase-fd 3 --symmetric --cipher-algo AES256 --output backup/public.dump.gpg backup/public.dump 3<<< "$BACKUP_PASSPHRASE"
+      - name: Guardar backup criptografado antes de migrar
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-backup-${{ github.run_id }}
+          path: backup/public.dump.gpg
+          retention-days: 7
+          if-no-files-found: error
+      - name: Aplicar migração e conferir preservação do histórico
+        run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SCHEMA_REVIEWED: ${{ vars.SCHEMA_REVIEWED }}
+          BACKUP_VERIFIED: production-backup-${{ github.run_id }}
+      - name: Solicitar deploy do mesmo commit no Render
+        run: node scripts/render-deploy.js
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}

@@ -1,6 +1,34 @@
 ﻿# Presença, resultados e experiência mobile
 
-Status: revisão inicial realizada; implementação e validação pendentes.
+Status: implementação local e testes concluídos; revisão do usuário e validação do esquema/backup/implantação reais pendentes. Sem commits, conforme solicitado.
+
+## Implementação e evidências — 16/09/2026
+
+- Sessões persistidas com cookie HttpOnly/SameSite, senha scrypt, vínculo explícito conta–jogador e autorização por patota nas rotas novas e antigas.
+- Backend mantém Express e usa conexão PostgreSQL do Supabase para transações. Configuração nova: `DATABASE_URL`; a chave anon não é usada para acessar dados privilegiados.
+- Confirmação futura separada de presença efetiva; resultados atômicos com controle de versão, gols contra, times, convidados, saldo e participações separados.
+- Agendamento com horário/fuso IANA e sugestão futura; temporadas explícitas com criação, renomeação e troca/encerramento voluntário.
+- Interface mobile com navegação por teclado, quarta bola idempotente, zero/entrada numérica, estados de salvamento/falha e exportação dos dados locais antigos sem importação automática.
+- Migração aditiva revisada localmente: bloqueio de duplicidades, presença histórica desconhecida, comparação de todos os campos antigos antes/depois, RLS e revogação de grants de tabela/coluna públicos. RPCs privilegiadas e views expostas exigem revisão.
+- `npm test`: **25 testes aprovados** (API, regras, migração, preservação, rollback, reenvio/conflito, temporadas, sessão e acesso direto ao banco).
+- `npm run test:ui`: **3 testes aprovados** no Chromium, viewport 390×844; capturas em `test-results/`. Foram conferidos login por Enter, confirmação própria, quarta bola repetida, zero, oito gols, ausência incompatível, falha de rede e Escape no modal.
+- GitHub Actions preparado para testes, backup público criptografado/restaurado, migração com ledger/checksum e deploy do commit validado no Render Free. Produção permanece desabilitada até configurar Secrets e as variáveis de liberação.
+- Guia de operação e transição das contas: [database/06-README.md](../database/06-README.md).
+
+### Pendências para o critério de conclusão
+
+- Inventariar e revisar o Supabase real, validar vínculos das contas, confirmar fuso/formato das senhas legadas e verificar backup remoto. Nenhum acesso administrativo remoto ou alteração de produção foi realizado.
+- Aplicar a migração e conferir as contagens reais após o review; configurar Render/GitHub Secrets e executar a pipeline. Os testes locais de banco usam PGlite; a CI foi preparada para PostgreSQL 17, mas ainda não foi executada no GitHub. Docker local estava sem daemon ativo.
+- Manter esta task em `tasks/` até essas etapas concluírem. **Não criar commit: o usuário fará o review e o commit.**
+
+## Plano de usabilidade — próxima iteração
+
+1. Fazer a primeira tela pós-login ser a próxima partida, com título contextual e data, horário e local destacados.
+2. Trocar a barra lateral por um menu hamburger acessível, contendo todas as patotas do jogador, criar patota e sair.
+3. Remover as ações textuais de confirmação e de jogadores/times da tela principal. Usar um botão flutuante de confirmação no mobile; ao abrir, oferecer apenas “vou” (joinha verde) e “não vou” (joinha vermelho), atualizar a confirmação e a lista imediatamente.
+4. Ordenar a lista da próxima partida por confirmação: confirmados, não vão, dúvida/sem resposta. Mostrar o nome do jogador em cada estado.
+5. Adicionar menu de opções exclusivo do administrador, com sorteio equilibrado dos jogadores confirmados entre os times e edição por arrastar e soltar, mantendo controles equivalentes por teclado.
+6. Validar foco, Escape, leitor de tela, viewport pequeno, estados de salvamento/falha e autorização do sorteio/alteração de times.
 
 ## Objetivo
 
